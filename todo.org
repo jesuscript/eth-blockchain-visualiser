@@ -1,0 +1,30 @@
+* DONE draggable canvas
+  CLOSED: [2015-06-25 Thu 17:54]
+* DONE zoomable canvas
+  CLOSED: [2015-06-25 Thu 17:54]
+* DONE lock canvas on node_drag
+  CLOSED: [2015-06-26 Fri 13:56]
+* DONE blockchain trimming
+  CLOSED: [2015-06-26 Fri 20:04]
+* DONE grey color for "dead blocks"
+  CLOSED: [2015-06-27 Sat 18:14]
+* DONE transactions
+  CLOSED: [2015-07-03 Fri 15:01]
+* TODO accounts
+* DONE block size based on gas spending
+  CLOSED: [2015-06-27 Sat 17:04]
+* DONE transaction size based on gas spending
+  CLOSED: [2015-07-03 Fri 15:01]
+* TODO account size based on the amount of ether
+* TODO node pop-out animation
+* TODO display selected node data
+* TODO window resize
+* DONE block labels
+  CLOSED: [2015-06-27 Sat 16:19]
+* TODO show/hide transactions
+* DONE fix links losing link strength after trim
+  CLOSED: [2015-06-27 Sat 17:51]
+* DONE fix root node translation to center
+  CLOSED: [2015-06-27 Sat 18:14]
+* TODO show/hide txs on block select
+* TODO show/hide accs on tx select
