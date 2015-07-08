@@ -18,8 +18,8 @@
   CLOSED: [2015-07-03 Fri 15:01]
 * DONE account size based on the amount of ether
   CLOSED: [2015-07-08 Wed 16:29]
-* TODO display selected node data
-* TODO window resize
+* DONE display selected node data
+  CLOSED: [2015-07-09 Thu 00:06]
 * DONE block labels
   CLOSED: [2015-06-27 Sat 16:19]
 * DONE show/hide transactions
@@ -32,14 +32,16 @@
   CLOSED: [2015-07-08 Wed 20:59]
 * DONE show/hide accs on tx select
   CLOSED: [2015-07-08 Wed 20:59]
-* TODO UI controls 
 * DONE restrict initial coords
   CLOSED: [2015-07-08 Wed 19:41]
-* TODO highlight contracts
-* TODO disable click events on drag
-* TODO ? clear stray blocks
+* DONE disable click events on drag
+  CLOSED: [2015-07-09 Thu 00:06]
 * DONE link tx to accs on add
   CLOSED: [2015-07-08 Wed 21:04]
 * DONE delocalise node creation (was a bad idea)
   CLOSED: [2015-07-08 Wed 21:36]
 * TODO graph legend
+* TODO UI controls 
+* TODO ? clear stray blocks
+* TODO highlight contracts
+* TODO window resize
