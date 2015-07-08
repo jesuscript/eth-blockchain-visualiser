@@ -40,6 +40,9 @@
   CLOSED: [2015-07-08 Wed 21:04]
 * DONE delocalise node creation (was a bad idea)
   CLOSED: [2015-07-08 Wed 21:36]
+* DONE figure out why only one of from/to accs shows
+  CLOSED: [2015-07-09 Thu 00:31]
+* TODO thicker links for block-block
 * TODO graph legend
 * TODO UI controls 
 * TODO ? clear stray blocks

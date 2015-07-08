@@ -236,7 +236,7 @@ BcGraph = function(){
       },
       function(cb){
         if(tx.to){
-          var accNode = addAccount({ address: tx.from });
+          var accNode = addAccount({ address: tx.to });
 
           linkAcc(accNode);
           
