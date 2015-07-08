@@ -500,7 +500,7 @@ BcGraph = function(){
     d3.selectAll(".node.block rect")
       .attr("width", computeSize)
       .attr("height", computeSize)
-      .style("fill", function(d){ return d.bestChain ? "red" : "grey" ;});
+      .classed("best-chain", function(d){ return d.bestChain; });
 
     d3.selectAll(".node.block text").attr("dx", function(d){
       return +d3.select(this.parentNode).select("rect").attr("width") + 5;
@@ -511,7 +511,6 @@ BcGraph = function(){
 
   function redrawTransactions(){
     d3.selectAll(".node.transaction circle")
-      .style("fill", "green")
       .attr("r", makeComputeNodeSize(txNodes(), nodeSize.tx, function(d){ return d.data.gas; }));
   }
 

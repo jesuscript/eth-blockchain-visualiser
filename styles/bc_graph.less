@@ -1,3 +1,5 @@
+@import "lib/colors";
+
 #bc-graph{
   position: absolute;
   top:0;
@@ -10,5 +12,18 @@
   .selected{
     stroke-width: 3;
     stroke: #000;
+  }
+  .node.block rect{
+    fill: @dead-block-color;
+    
+    &.best-chain{
+      fill: @block-color;
+    }
+  }
+  .node.transaction circle{
+    fill: @tx-color;
+  }
+  .node.account circle{
+    fill: @acc-color;
   }
 }
