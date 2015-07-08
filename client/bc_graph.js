@@ -150,7 +150,7 @@ BcGraph = function(){
     
     linkNodes(node, _.findWhere(nodes, {id:block.parentHash}));
 
-    trimBlocks(10);
+    trimBlocks(100);
     updateBestChain();
     
     done();

@@ -14,6 +14,6 @@ Template.nodeInfo.helpers({
     }).sortBy("key").value();
   },
   type: function(){
-    return Session.get("nodeData").type;
+    return (Session.get("nodeData") || {}).type;
   }
 });

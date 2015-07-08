@@ -1,9 +1,11 @@
+@import "lib/colors";
+
 #node-info{
   position: absolute;
   top: -2px;
   right: 0;
   width: 450px;
-  max-height: 280px;
+  max-height: 300px;
   overflow: auto;
   background-color: #fff;
   z-index:100;
@@ -13,6 +15,24 @@
   border-right: 0;
   border-bottom-left-radius: 3px;
   color: #333;
+  &.block{
+    border-color: @block-color;
+    h3{
+      background-color: @block-color;
+    }
+  }
+  &.transaction{
+    border-color: @tx-color;
+    h3{
+      background-color: @tx-color;
+    }
+  }
+  &.account{
+    border-color: @acc-color;
+    h3{
+      background-color: @acc-color;
+    }
+  }
   p{
     margin: 0;
     text-align: center;
