@@ -40,4 +40,6 @@
 * TODO ? clear stray blocks
 * DONE link tx to accs on add
   CLOSED: [2015-07-08 Wed 21:04]
-* TODO delocalise node creation (was a bad idea)
+* DONE delocalise node creation (was a bad idea)
+  CLOSED: [2015-07-08 Wed 21:36]
+* TODO graph legend

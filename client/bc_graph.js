@@ -150,13 +150,9 @@ BcGraph = function(){
     
     linkNodes(node, _.findWhere(nodes, {id:block.parentHash}));
 
-    
     trimBlocks(10);
     updateBestChain();
     
-    // addTransactionsFrom(block, {x: node.x, y: node.y}, function(){
-    //   done();
-    // });
     done();
   }
 
@@ -205,28 +201,26 @@ BcGraph = function(){
   }
 
 
-
-
-  function addTransactionsFrom(block, opt, done){
+  function addTransactionsFrom(block, done){
     async.each(block.transactions, function(txHash, cb){
       web3.eth.getTransaction(txHash, function(err, tx){
-        var node = _.extend(addTransaction(tx),opt);
+        var node = _.extend(addTransaction(tx));
 
         linkNodes(node, _.findWhere(nodes, {id: tx.blockHash}));
 
-        linkNodes(_.findWhere(nodes,{id: tx.from}), node);
-        if(tx.to) linkNodes(_.findWhere(nodes, {id: tx.to}), node);
+        // linkNodes(_.findWhere(nodes,{id: tx.from}), node);
+        // if(tx.to) linkNodes(_.findWhere(nodes, {id: tx.to}), node);
 
-        cb();
+        addAccountsFrom(tx, cb);
       });
     },done);
   }
 
 
-  function addAccountsFrom(tx,opt,done){
+  function addAccountsFrom(tx,done){
     var linkAcc = function(accNode){
       _(nodes).filter(function(n){
-          return (n.type === "transaction") &&
+        return (n.type === "transaction") &&
           ((n.data.to === accNode.id) || (n.data.from === accNode.id));
       }).each(function(n){
         linkNodes(accNode, n);
@@ -405,7 +399,9 @@ BcGraph = function(){
     var nodeCont = node.enter()
           .insert("g")
           .attr("class", function(d){ return "node " + d.type;})
-          .on("click", nodeClick)
+          .on("mousedown", nodeMousedown)
+          .on("mouseup", nodeMouseup)
+          .on("mousemove", nodeMousemove)
           .on("mouseenter", nodeMouseenter)
           .on("mouseleave", nodeMouseleave)
           .call(force.drag);
@@ -440,31 +436,61 @@ BcGraph = function(){
     }[d.type];
   }
 
-  function nodeClick(d){
-    d.selected = !d.selected;
+  var mousedownActive = false,
+      mouseMoved = false;
 
-    var args = [d.data, {x: node.x, y: node.y}, redraw];
-    
-    if(d.selected){
-      d.fixed = true;
+  function nodeMousedown(d){
+    mousedownActive = true;
+  }
+
+  function nodeMousemove(){
+    if(mousedownActive) mouseMoved = true;
+  }
+
+  function nodeMouseup(d){
+    d.fixed = true;
+
+    if(!mouseMoved){
+      d.selected = !d.selected;
+
+      var args = [d.data, redraw];
       
-      if(d.type === "block") addTransactionsFrom.apply(null, args);
-      if(d.type === "transaction") addAccountsFrom.apply(null, args);
-    }else{
-      if(d.type === "block") removeTransactionsFrom(d.data);
-      if(d.type === "transaction") removeAccountsFrom(d.data);
+      if(d.selected){
+        d.fixed = true;
+        
+        if(d.type === "block") addTransactionsFrom.apply(null, args);
+        if(d.type === "transaction") addAccountsFrom.apply(null, args);
+      }else{
+        if(d.type === "block") removeTransactionsFrom(d.data);
 
-      redraw();
+        redraw();
+      }
     }
+
+    mousedownActive = false;
+    mouseMoved = false;
   }
 
   function nodeMouseenter(d){
-    Session.set("nodeData", _.extend(d.data, {type: d.type}) );
+    Session.set("nodeData", _.extend(readableNodeData(d.data), {type: d.type}) );
+    
+    d3.selectAll(".node").select(".node-shape").classed("selected", false);
+    d3.select(this).select(".node-shape").classed("selected", true);
   }
 
-  function nodeMouseleave(d){
-    
+  function readableNodeData(data){
+    return _.mapValues(data, function(v,k){
+      if((k === "balance") || (k=="value")) v = "ETH " + web3.fromWei(v, "ether").toFixed(4);
+      
+      if(v instanceof BigNumber){
+        return v.toString();
+      }
+
+      return v;
+    });
   }
+
+  function nodeMouseleave(d){ }
 
   function redrawBlocks(){
     var computeSize = makeComputeNodeSize(blockNodes(), nodeSize.block, function(d){

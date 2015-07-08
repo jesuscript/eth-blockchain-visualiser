@@ -1,0 +1,34 @@
+<template name="nodeInfo">
+  <div id="node-info">
+    {{#if node }}
+      <h3>{{type}}</h3>
+      <div class="container-fluid">
+        <form class="form-horizontal">
+          {{#each fields }}
+            <div class="form-group">
+              <label class="col-xs-4 control-label">
+                {{key}}
+              </label>
+              <div class="col-xs-8">
+                {{#if list}}
+                  <select class="form-control">
+                    {{#each value}}
+                      <option>{{this}}</option>
+                    {{/each}}
+                  </select>
+                {{else}}
+                  <input type="text" disabled value="{{value}}" class="form-control"/>
+                {{/if}}
+              </div>
+            </div>
+
+          {{/each}}
+        </form>
+      </div>
+    {{else}}
+      <p>
+        Red square nodes are blocks. Try clicking one.
+      </p>
+    {{/if}}
+  </div>
+</template>
