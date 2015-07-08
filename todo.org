@@ -10,21 +10,34 @@
   CLOSED: [2015-06-27 Sat 18:14]
 * DONE transactions
   CLOSED: [2015-07-03 Fri 15:01]
-* TODO accounts
+* DONE accounts
+  CLOSED: [2015-07-08 Wed 16:21]
 * DONE block size based on gas spending
   CLOSED: [2015-06-27 Sat 17:04]
 * DONE transaction size based on gas spending
   CLOSED: [2015-07-03 Fri 15:01]
-* TODO account size based on the amount of ether
-* TODO node pop-out animation
+* DONE account size based on the amount of ether
+  CLOSED: [2015-07-08 Wed 16:29]
 * TODO display selected node data
 * TODO window resize
 * DONE block labels
   CLOSED: [2015-06-27 Sat 16:19]
-* TODO show/hide transactions
+* DONE show/hide transactions
+  CLOSED: [2015-07-08 Wed 20:59]
 * DONE fix links losing link strength after trim
   CLOSED: [2015-06-27 Sat 17:51]
 * DONE fix root node translation to center
   CLOSED: [2015-06-27 Sat 18:14]
-* TODO show/hide txs on block select
-* TODO show/hide accs on tx select
+* DONE show/hide txs on block select
+  CLOSED: [2015-07-08 Wed 20:59]
+* DONE show/hide accs on tx select
+  CLOSED: [2015-07-08 Wed 20:59]
+* TODO UI controls 
+* DONE restrict initial coords
+  CLOSED: [2015-07-08 Wed 19:41]
+* TODO highlight contracts
+* TODO disable click events on drag
+* TODO ? clear stray blocks
+* DONE link tx to accs on add
+  CLOSED: [2015-07-08 Wed 21:04]
+* TODO delocalise node creation (was a bad idea)

@@ -46,6 +46,10 @@ BcGraph = function(){
     tx: {
       min: 2,
       max: 10
+    },
+    acc: {
+      min: 3,
+      max: 15
     }
   };
   
@@ -70,9 +74,15 @@ BcGraph = function(){
   }
 
   var force = d3.layout.force()
-        .charge(-1000)
+        .charge(function(d){
+          return {
+            "block": -1000,
+            "transaction": -100,
+            "account": -100
+          }[d.type] || -300;
+        })
         .size([width, height])
-        .gravity(0.02)
+        .gravity(0)
         .friction(0.9)
         .linkDistance(function(d){
           return {
@@ -90,13 +100,15 @@ BcGraph = function(){
       link = vis.selectAll(".link");
 
   force.on("tick", function(){
-    link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+    link.attr("x1", function(d) { if(!isNaN(d.source.x)) return d.source.x; })
+      .attr("y1", function(d) { if(!isNaN(d.source.y))  return d.source.y; })
+      .attr("x2", function(d) { if(!isNaN(d.target.x)) return d.target.x; })
+      .attr("y2", function(d) { if(!isNaN(d.target.y)) return d.target.y; });
 
     node.attr("transform", function(d){
       var dx, dy;
+
+      if(isNaN(d.x) || isNaN(d.y)) return;
       
       if(d.type === "block"){
         //TODO: translate blocks at creation stage instead of this: 
@@ -113,8 +125,7 @@ BcGraph = function(){
   var firstBlock = web3.eth.getBlock("latest");
 
   if(firstBlock){
-    addBlock(firstBlock);
-    redraw();
+    processBlock(firstBlock, redraw);
   }
 
   var watcher = watchBlockchain();
@@ -124,7 +135,7 @@ BcGraph = function(){
 
     filter.watch(function(err, result){
       
-      processBlock(web3.eth.getBlock("latest"));
+      processBlock(web3.eth.getBlock("latest"), redraw);
     });
 
     return filter;
@@ -134,15 +145,19 @@ BcGraph = function(){
     watcher && watcher.stopWatching();
   }
 
-  function processBlock(block){
-    linkNodes(addBlock(block), _.findWhere(nodes, {id:block.parentHash}));
+  function processBlock(block, done){
+    var node = addBlock(block);
+    
+    linkNodes(node, _.findWhere(nodes, {id:block.parentHash}));
 
-    addTransactionsFrom(block);
-
+    
     trimBlocks(10);
     updateBestChain();
     
-    redraw();
+    // addTransactionsFrom(block, {x: node.x, y: node.y}, function(){
+    //   done();
+    // });
+    done();
   }
 
 
@@ -163,14 +178,10 @@ BcGraph = function(){
       }
       
       rootBlockNode = node;
-      centerNode(fixNode(node));
+      
+      centerNode(node);
+      node.fixed = true;
     }
-  }
-
-  function fixNode(node, center){
-    return _.extend(node, {
-      fixed: true
-    });
   }
 
   function centerNode(node){
@@ -196,65 +207,82 @@ BcGraph = function(){
 
 
 
-  function addTransactionsFrom(block){
+  function addTransactionsFrom(block, opt, done){
     async.each(block.transactions, function(txHash, cb){
       web3.eth.getTransaction(txHash, function(err, tx){
-        linkNodes(addTransaction(tx), _.findWhere(nodes, {id: tx.blockHash}));
+        var node = _.extend(addTransaction(tx),opt);
+
+        linkNodes(node, _.findWhere(nodes, {id: tx.blockHash}));
+
+        linkNodes(_.findWhere(nodes,{id: tx.from}), node);
+        if(tx.to) linkNodes(_.findWhere(nodes, {id: tx.to}), node);
 
         cb();
       });
-    }, function(){
-      redraw();
-    });
+    },done);
   }
 
 
-  function addAccountsFrom(tx){
+  function addAccountsFrom(tx,opt,done){
+    var linkAcc = function(accNode){
+      _(nodes).filter(function(n){
+          return (n.type === "transaction") &&
+          ((n.data.to === accNode.id) || (n.data.from === accNode.id));
+      }).each(function(n){
+        linkNodes(accNode, n);
+      }).value();
+    };
     async.parallel([
       function(cb){
-        var acc = { address: tx.from };
+        var accNode = addAccount({ address: tx.from });
 
-        linkNodes(addAccount(acc), _.findWhere(nodes, {id: tx.hash}));
-        
-        updateAccData(acc, cb);
+        linkAcc(accNode);
+
+        updateAccData(accNode, cb);
       },
       function(cb){
         if(tx.to){
-          var acc = { address: tx.from };
+          var accNode = addAccount({ address: tx.from });
 
-          linkNodes(addAccount(acc), _.findWhere(nodes, {id: tx.hash}));
+          linkAcc(accNode);
           
-          updateAccData(acc,cb);
+          updateAccData(accNode,cb);
         }else{
           cb();
         } 
       }
-    ], function(){
-      redraw();
-    });
+    ], done);
   }
 
-  function updateAccData(acc, cb){
+  function updateAccData(accNode, done){
+    var acc = accNode.data;
+    
     async.parallel([
       function(cb){
         web3.eth.getBalance(acc.address, function(err, bal){
           if(err) throw err;
 
           acc.balance = bal;
+
+          cb();
         });
       },
       function(cb){
         web3.eth.getCode(acc.address, function(err, code){
           if(code.length > 2) acc.code = code;
+
+          cb();
         });
       },
       function(cb){
         web3.eth.getTransactionCount(acc.address, function(err, txCount){
           acc.transactionCount = txCount;
+
+          cb();
         });
       }
     ], function(){
-      cb(acc);
+      done(acc);
     });
   }
 
@@ -274,17 +302,21 @@ BcGraph = function(){
   }
 
   function removeBlockNode(node){
+    if(!node) return;
+    
     removeTransactionsFrom(node.data);
     removeNode(node);
   }
 
   function removeTransactionsFrom(block){
-    _.each(_.map(block.transactions, function(txHash){
-      return _.findWhere(nodes, {id: txHash});
-    }, removeNode));
+    _.each(block.transactions, function(txHash){
+      return removeTransactionNode(_.findWhere(nodes, {id: txHash}));
+    });
   }
 
   function removeTransactionNode(node){
+    if(!node) return;
+    
     removeAccountsFrom(node.data);
     removeNode(node);
   }
@@ -308,15 +340,17 @@ BcGraph = function(){
 
 
   function linkNodes(target, source){
-    var id = source.id + target.id;
-    
-    if(target && source && !(_.findWhere(links, {id: id}))){
-      links.push({
-        source: source,
-        target: target,
-        type: source.type + "-" + target.type,
-        id: id
-      });
+    if(target && source){
+      var id = source.id + target.id;
+      
+      if(!(_.findWhere(links, {id: id}))){
+        links.push({
+          source: source,
+          target: target,
+          type: source.type + "-" + target.type,
+          id: id
+        });
+      }
     }
   }
 
@@ -371,6 +405,9 @@ BcGraph = function(){
     var nodeCont = node.enter()
           .insert("g")
           .attr("class", function(d){ return "node " + d.type;})
+          .on("click", nodeClick)
+          .on("mouseenter", nodeMouseenter)
+          .on("mouseleave", nodeMouseleave)
           .call(force.drag);
     
     nodeCont.each(function(d){
@@ -378,7 +415,7 @@ BcGraph = function(){
         "block": "rect",
         "transaction": "circle",
         "account": "circle"
-      }[d.type]);
+      }[d.type]).classed("node-shape", true);
     });
     
     nodeCont
@@ -389,6 +426,7 @@ BcGraph = function(){
 
     redrawBlocks();
     redrawTransactions();
+    redrawAccounts();
 
     node.exit().remove();
 
@@ -400,6 +438,32 @@ BcGraph = function(){
       "block":  "#" + d.data.number,
       "transaction": ""
     }[d.type];
+  }
+
+  function nodeClick(d){
+    d.selected = !d.selected;
+
+    var args = [d.data, {x: node.x, y: node.y}, redraw];
+    
+    if(d.selected){
+      d.fixed = true;
+      
+      if(d.type === "block") addTransactionsFrom.apply(null, args);
+      if(d.type === "transaction") addAccountsFrom.apply(null, args);
+    }else{
+      if(d.type === "block") removeTransactionsFrom(d.data);
+      if(d.type === "transaction") removeAccountsFrom(d.data);
+
+      redraw();
+    }
+  }
+
+  function nodeMouseenter(d){
+    Session.set("nodeData", _.extend(d.data, {type: d.type}) );
+  }
+
+  function nodeMouseleave(d){
+    
   }
 
   function redrawBlocks(){
@@ -423,6 +487,14 @@ BcGraph = function(){
     d3.selectAll(".node.transaction circle")
       .style("fill", "green")
       .attr("r", makeComputeNodeSize(txNodes(), nodeSize.tx, function(d){ return d.data.gas; }));
+  }
+
+  function redrawAccounts(){
+    d3.selectAll(".node.account circle")
+      .style("fill", "blue")
+      .attr("r", makeComputeNodeSize(accNodes(), nodeSize.acc, function(d){
+        return d.data.balance || 0; 
+      }));
   }
 
   function makeComputeNodeSize(nodes, sizeRange, getVal){
