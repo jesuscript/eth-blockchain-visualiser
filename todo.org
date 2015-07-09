@@ -42,9 +42,11 @@
   CLOSED: [2015-07-08 Wed 21:36]
 * DONE figure out why only one of from/to accs shows
   CLOSED: [2015-07-09 Thu 00:31]
+* TODO fix block gapping 
 * TODO thicker links for block-block
 * TODO graph legend
 * TODO UI controls 
 * TODO ? clear stray blocks
 * TODO highlight contracts
 * TODO window resize
+* TODO make node info collapsible

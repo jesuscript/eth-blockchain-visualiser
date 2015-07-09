@@ -133,9 +133,8 @@ BcGraph = function(){
   function watchBlockchain(){
     var filter = web3.eth.filter("latest");
 
-    filter.watch(function(err, result){
-      
-      processBlock(web3.eth.getBlock("latest"), redraw);
+    filter.watch(function(err, hash){
+      processBlock(web3.eth.getBlock(hash), redraw);
     });
 
     return filter;
@@ -146,6 +145,7 @@ BcGraph = function(){
   }
 
   function processBlock(block, done){
+    console.log(block.number);
     var node = addBlock(block);
     
     linkNodes(node, _.findWhere(nodes, {id:block.parentHash}));
