@@ -1,5 +1,5 @@
 {
   "public": {
-    "rpcAddress": "http:localhost:8545"
+    "rpcAddress": "http://eth-rpc-1944806189.us-west-2.elb.amazonaws.com/"
   }
 }
