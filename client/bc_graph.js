@@ -145,7 +145,6 @@ BcGraph = function(){
   }
 
   function processBlock(block, done){
-    console.log(block.number);
     var node = addBlock(block);
     
     linkNodes(node, _.findWhere(nodes, {id:block.parentHash}));
