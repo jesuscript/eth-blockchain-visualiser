@@ -1,16 +1,15 @@
 @import "lib/colors";
 
 #node-info{
-  position: absolute;
+  position: fixed;
   top: -2px;
   right: 0;
-  width: 450px;
-  max-height: 300px;
+  width: 350px;
+  max-height: 100%;
   overflow: auto;
-  background-color: #fff;
+  background-color: transparent;
   z-index:100;
   padding: 0 0 5px;
-  border: 2px solid #000;
   border-top: 0;
   border-right: 0;
   border-bottom-left-radius: 3px;
@@ -41,9 +40,32 @@
     background-color: #fff;
   }
   h3{
+    font-size: 18px;
     background-color: #000;
     color: #fff;
-    padding: 5px;
+    padding: 5px 10px;
     margin-top: 0;
+    border-left: 10px solid #000;
+    border-right: 10px solid #000;
+    text-align: center;
+  }
+  .form-group{
+    margin-bottom: 5px;
+    label, input, select{
+      font-size: 12px;
+    }
+    
+    input, select{
+      padding: 5px 10px;
+      height: 24px;
+      border-radius: 0;
+      background-color: transparent;
+      outline: 1px inset black;
+      outline-offset:-1px;
+    }
+
+    label{
+      padding-top: 4px;
+    }
   }
 }
