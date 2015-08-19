@@ -1,42 +1,28 @@
 var _ = lodash;
 
-// block:
-// difficulty: BigNumber
-// extraData: "0x"
-// gasLimit: 3141592
-// gasUsed: 2146920
-// hash: "0xe468b44d5a006cf083be21095254f47e4dbb4a422b8129d05b7c1468e4679169"
-// logsBloom: ".."
-// miner: "0x75d12319f9203a983f6773355194412d1a73d820"
-// nonce: "0x03ec20a4d6981570"
-// number: 725400
-// parentHash: "0x9b0de90597c689174cd0757441572224fd97290e5c0f2db175ccd43d19656957"
-// sha3Uncles: "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347"
-// size: 11911
-// stateRoot: "0x84425180ed5ea4238fc0658151dbd610609f6d6be2043ad0da63e38448e68d8c"
-// timestamp: 1435418875
-// totalDifficulty: BigNumber
-// transactions: Array[100]
-// transactionsRoot: "0x8c05b3202a7fb9bf43a36b01f75c79585abf1f2884282de4b8c9b357785c3ec2"
-// uncles: Array[0]
+BcGraph = function(el){
+  var self = {},
+      watcher;
 
-// tx:
-// blockHash: "0x037bb7b257d51ea7b81b4861905d6c5044edbb44c8bb84b982de9b1f258a1b91"
-// blockNumber: 727297
-// from: "0xb4e64290541cbf36159e727dfd8d873f77b42149"
-// gas: 100000
-// gasPrice: BigNumber
-// hash: "0xf5d316e5a40c1b08e46d9ea7337f8a0aab520c9d69c44736cc753c21c3792dc1"
-// input: "0x01"
-// nonce: 3698334
-// to: "0xb4e64290541cbf36159e727dfd8d873f77b42149"
-// transactionIndex: 135
+  _.extend(self, {
+    autoExpand: false,
+    fetch: function(opt){
+      watcher = watchBlockchain(opt);
+    },
+    stopFetching: function(){
+      unwatchBlockchain();
+    },
+    showBlock: function(block){
+      var firstBlock = web3.eth.getBlock(block);
 
-BcGraph = function(){
-  var self = {};
-
+      if(firstBlock){
+        processBlock(firstBlock, redraw);
+      }
+    },
+    onNodeSelected: function(){} //to override
+  });
+  
   var rootBlockNode;
-
 
   var nodeSize = {
     block: {
@@ -53,11 +39,12 @@ BcGraph = function(){
     }
   };
   
-  var $svg = this.$("#bc-graph"),
-      svg = d3.select("#bc-graph"),
+  var $svg = $(el),
+      svg = d3.select(el),
       width = $svg.width(),
       height = $svg.height(),
       zoom = d3.behavior.zoom().on("zoom", rescale);
+
 
   svg.append("g")
     .call(zoom)
@@ -122,17 +109,10 @@ BcGraph = function(){
     });
   });
 
-  var firstBlock = web3.eth.getBlock("latest");
 
-  if(firstBlock){
-    processBlock(firstBlock, redraw);
-  }
-
-  var watcher = watchBlockchain();
-  
-  function watchBlockchain(){
-    var filter = web3.eth.filter("latest");
-
+  function watchBlockchain(opt){
+    var filter = web3.eth.filter(opt);
+    
     filter.watch(function(err, hash){
       processBlock(web3.eth.getBlock(hash), redraw);
     });
@@ -471,8 +451,7 @@ BcGraph = function(){
   }
 
   function nodeMouseenter(d){
-    Session.set("nodeData", _.extend(readableNodeData(d.data), {type: d.type}) );
-    
+    self.onNodeSelected(_.extend(readableNodeData(d.data), {type: d.type}));
     d3.selectAll(".node").select(".node-shape").classed("selected", false);
     d3.select(this).select(".node-shape").classed("selected", true);
   }

@@ -46,8 +46,10 @@
   CLOSED: [2015-07-13 Mon 14:01]
 * DONE deploy bc_viz
   CLOSED: [2015-07-10 Fri 21:07]
-* TODO restyle the data panel
-* TODO UI controls panel
+* DONE restyle the data panel
+  CLOSED: [2015-08-17 Mon 22:42]
+* DONE UI controls panel
+  CLOSED: [2015-08-18 Tue 21:21]
 * TODO fromBlock - toBlock
 * TODO autoexpand on/off
 * TODO profile block expansion
